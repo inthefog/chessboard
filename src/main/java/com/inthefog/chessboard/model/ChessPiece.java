@@ -9,6 +9,8 @@ import com.inthefog.chessboard.model.pieces.Rook;
 import com.inthefog.chessboard.model.types.PieceColor;
 import com.inthefog.chessboard.model.types.PieceType;
 
+import java.util.Collection;
+
 public abstract class ChessPiece {
 	
 	protected PieceType type = PieceType.PAWN;
@@ -172,4 +174,10 @@ public abstract class ChessPiece {
 	 * @return
 	 */
 	protected abstract boolean isValidTake(ChessCoords dst);
+
+    /**
+     *
+     * @return
+     */
+	protected abstract Collection<ChessMove> getAllMoves();
 }

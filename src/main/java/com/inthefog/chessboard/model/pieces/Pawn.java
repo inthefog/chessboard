@@ -1,18 +1,30 @@
 package com.inthefog.chessboard.model.pieces;
 
 import com.inthefog.chessboard.model.ChessCoords;
+import com.inthefog.chessboard.model.ChessMove;
 import com.inthefog.chessboard.model.ChessPiece;
 import com.inthefog.chessboard.model.types.PieceColor;
 import com.inthefog.chessboard.model.types.PieceType;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class Pawn extends ChessPiece {
-	
+
+    private final int rankStep;
+    private final int prePromotionRank;
+    private static final PieceType[] promotionPieces = new PieceType[] {
+        PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT };
+
 	/**
 	 * 
 	 * @param color
 	 */
 	public Pawn(PieceColor color, ChessCoords loc) {
-		super(PieceType.PAWN, color, loc);
+	    super(PieceType.PAWN, color, loc);
+        rankStep = (color == PieceColor.WHITE) ? 1 : -1;
+        prePromotionRank = (color == PieceColor.WHITE) ? 6 : 1;
 	}
 
 	/**
@@ -79,5 +91,35 @@ public class Pawn extends ChessPiece {
 		}
 		
 		return true;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	protected Collection<ChessMove> getAllMoves() {
+		if (loc == null || !loc.inRange()) {
+			return new ArrayList<>();
+		}
+
+		List<ChessMove> moves = new ArrayList<>();
+        for (int fileStep = -1; fileStep <= 1; fileStep++) {
+            ChessCoords dst = loc.incr(rankStep, fileStep);
+
+            if (!dst.inRange()) {
+                continue;
+            }
+
+            if (loc.getRank() == prePromotionRank) {
+                for (PieceType promotionPiece : promotionPieces) {
+                    moves.add(new ChessMove(loc, dst, promotionPiece));
+                }
+            } else {
+                moves.add(new ChessMove(loc, dst));
+            }
+        }
+
+		return moves;
 	}
 }

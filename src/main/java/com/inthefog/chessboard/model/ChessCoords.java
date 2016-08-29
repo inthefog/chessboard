@@ -82,9 +82,10 @@ public class ChessCoords {
 	 * @param rankStep
 	 * @param fileStep
 	 */
-	public void incrInPlace(int rankStep, int fileStep) {
+	public ChessCoords incrInPlace(int rankStep, int fileStep) {
 		this.rank += rankStep;
 		this.file += fileStep;
+		return this;
 	}
 	
 	/**

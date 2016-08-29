@@ -343,7 +343,84 @@ public class ChessPosition {
             return null;
         }
     }
-	
+
+	/**
+	 * Creates algebraic move from a chessboard move on board.
+	 * This function validates the move with {@link #validateMove(ChessMove)}.
+	 */
+	public String createAlgebraic(ChessMove move) {
+		try {
+			if (!validateMove(move)) {
+				return null;
+			}
+
+			ChessPosition newPosition = forkPosition(move);
+
+			ChessCoords src = move.getSrc();
+			ChessCoords dst = move.getDst();
+			ChessPiece srcPiece = getPiece(src);
+			ChessPiece dstPiece = getPiece(dst);
+            PieceType promotionPiece = move.getPromotion();
+			PieceType pieceType = srcPiece.getType();
+			int srcRank = src.getRank();
+			int dstRank = dst.getRank();
+			int srcFile = src.getFile();
+			int dstFile = dst.getFile();
+			int deltaRank = dstRank - srcRank;
+			int deltaFile = dstFile - srcFile;
+
+			if (pieceType == PieceType.KING) {
+				if (deltaRank == 0 && deltaFile == 2) {
+					return "0-0";
+				} else if (deltaRank == 0 && deltaFile == -2) {
+					return "0-0-0";
+				}
+			}
+
+			StringBuilder resultBuilder = new StringBuilder();
+
+            if (pieceType == PieceType.PAWN) {
+				if (srcFile != dstFile) {
+					resultBuilder.append(srcFile + 'a');
+				}
+			} else {
+				resultBuilder.append(PieceType.toAlgebraic(pieceType));
+                Collection<ChessPiece> similarPieces = getPieces(getTurn()).get(pieceType);
+                int validVariants = 0;
+                for (ChessPiece piece : similarPieces) {
+                    if (validateMove(new ChessMove(piece.getLocation(), dst))) {
+                        validVariants += 1;
+                    }
+                }
+
+                // Simplifying the original notation. If more than one piece can move to same destination square,
+                // source square is asserted.
+                if (validVariants > 1) {
+                    resultBuilder.append(src.toString());
+                }
+			}
+
+			if (dstPiece != null) {
+				resultBuilder.append('x');
+			}
+
+			resultBuilder.append(dst.toString());
+
+            if (promotionPiece != null) {
+                resultBuilder.append("=").append(PieceType.toAlgebraic(promotionPiece));
+            }
+
+            if (newPosition.kingChecked()) {
+                resultBuilder.append(newPosition.hasValidMove() ? '+' : '#');
+            }
+
+			return resultBuilder.toString();
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
 	/**
 	 * Generates new modified position object. 
 	 * Move is not being validated. All validations should be done separately
@@ -872,6 +949,21 @@ public class ChessPosition {
 		ChessPiece myKing = findPieces(PieceType.KING, turn).get(0);
 		return squareUnderAttack(PieceColor.switchColor(turn), myKing.getLocation());
 	}
+
+    /**
+     *
+     * @return
+     */
+	private boolean hasValidMove() {
+        for (ChessPiece piece : getPieces(getTurn()).values()) {
+            for (ChessMove move : piece.getAllMoves()) {
+                if (validateMove(move)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      *
