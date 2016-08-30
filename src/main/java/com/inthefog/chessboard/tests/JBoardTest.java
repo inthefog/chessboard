@@ -8,11 +8,11 @@ import com.inthefog.chessboard.model.ChessPosition;
 import com.inthefog.chessboard.view.JBoard;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.Dimension;
 
 import com.inthefog.chessboard.view.JClock;
 import com.inthefog.chessboard.view.JNotation;
@@ -25,6 +25,7 @@ public class JBoardTest extends JFrame implements ActionListener {
     private JMenuBar menuBar = null;
     private JMenu fileMenu = null;
     private JMenu boardMenu = null;
+    private JMenuItem copyGameMenuItem = null;
     private JMenuItem startPosMenuItem = null;
     private JMenuItem flipMenuItem = null;
     private JMenuItem autoPromotionMenuItem = null;
@@ -41,12 +42,9 @@ public class JBoardTest extends JFrame implements ActionListener {
     public JBoardTest(String title) {
         super(title);
 
-        board = new JBoard();
-        board.setGame(new ChessPosition().setStartPosition());
-
         //setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setMainPanel(board);
+        setMainPanel();
         setMenu();
         pack();
         setVisible(true);
@@ -55,12 +53,14 @@ public class JBoardTest extends JFrame implements ActionListener {
     /**
      *
      */
-    private void setMainPanel(JBoard board) {
-        JButton button2 = new JButton("BBB");
-        JButton button3 = new JButton("CCC");
-        JButton button4 = new JButton("DDD");
+    private void setMainPanel() {
 
-        JPanel mainPanel = new JMainPanel(board, button2, button3, button4, new JClock());
+        board = new JBoard();
+        board.setGame(new ChessPosition().setStartPosition());
+
+        notation = new JNotation();
+
+        JPanel mainPanel = new JMainPanel(board, new JClock(), notation);
         mainPanel.setPreferredSize(new Dimension(UI_WIDTH, UI_HEIGHT));
         add(mainPanel);
     }
@@ -74,6 +74,11 @@ public class JBoardTest extends JFrame implements ActionListener {
         fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         boardMenu = new JMenu("Board");
+
+        copyGameMenuItem = new JMenuItem("Copy Game", null);
+        copyGameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
+        copyGameMenuItem.setToolTipText("Copy game to clipboard");
+        copyGameMenuItem.addActionListener(this);
 
         startPosMenuItem = new JMenuItem("Start Position", null);
         startPosMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
@@ -91,7 +96,7 @@ public class JBoardTest extends JFrame implements ActionListener {
         autoPromotionMenuItem.addActionListener(this);
 
         clearMenuItem = new JMenuItem("Clear", null);
-        clearMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
+        clearMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK));
         clearMenuItem.setToolTipText("Clear board");
         clearMenuItem.addActionListener(this);
 
@@ -100,6 +105,7 @@ public class JBoardTest extends JFrame implements ActionListener {
         exitMenuItem.setToolTipText("Exit board");
         exitMenuItem.addActionListener(this);
 
+        boardMenu.add(copyGameMenuItem);
         boardMenu.add(startPosMenuItem);
         boardMenu.add(flipMenuItem);
         boardMenu.add(autoPromotionMenuItem);
@@ -117,6 +123,9 @@ public class JBoardTest extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == exitMenuItem) {
             System.exit(0);
+        }
+        else if (e.getSource() == copyGameMenuItem) {
+            board.copyGameToClipboard();
         }
         else if (e.getSource() == startPosMenuItem) {
             board.setGame(new ChessPosition().setStartPosition());

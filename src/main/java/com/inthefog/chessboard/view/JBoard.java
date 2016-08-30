@@ -17,6 +17,7 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.swing.*;
 
+import com.inthefog.chessboard.view.helpers.ClipboardReadWrite;
 import com.inthefog.chessboard.view.helpers.JBoardActions;
 import org.apache.commons.io.IOUtils;
 
@@ -204,6 +205,15 @@ public class JBoard extends JComponent implements ComponentListener {
 			//Make sound
 		}
 	}
+
+    /**
+     *
+     */
+	public void copyGameToClipboard() {
+	    String gameText = game.toMovesPgn();
+        ClipboardReadWrite.writeText(gameText);
+
+    }
 	
 	/**
 	 * 
