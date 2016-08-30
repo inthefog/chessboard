@@ -1,5 +1,8 @@
 package com.inthefog.chessboard.model;
 
+import com.inthefog.chessboard.model.types.PieceColor;
+
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -73,14 +76,35 @@ public class ChessGame {
 	}
 
     /**
-     * Return all game moves in ChessDb notation.
+     * Returns all moves separated with semi-colon.
      * @return
      */
-    public String getAllMovesString() {
+    public String toMovesString() {
         StringBuilder sb = new StringBuilder();
-        for (Node tmpIterator=head.next; tmpIterator!= null; tmpIterator=tmpIterator.next) {
-            sb.append(tmpIterator.move.toString());
-            sb.append(';');
+        Node tmpIterator = head;
+        while (tmpIterator.next != null) {
+            sb.append(tmpIterator.next.move.toString());
+            sb.append(' ');
+            tmpIterator = tmpIterator.next;
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns all moves in PGN notation.
+     * @return
+     */
+    public String toMovesPgn() {
+        StringBuilder sb = new StringBuilder();
+        Node tmpIterator = head;
+        while (tmpIterator.next != null) {
+            if (tmpIterator.prev == null || tmpIterator.position.getTurn() == PieceColor.WHITE) {
+                sb.append(tmpIterator.next.moveId);
+                sb.append(tmpIterator.position.getTurn() == PieceColor.WHITE ? ". " : "... ");
+            }
+            sb.append(tmpIterator.position.createAlgebraic(tmpIterator.next.move));
+            sb.append(' ');
+            tmpIterator = tmpIterator.next;
         }
         return sb.toString();
     }
@@ -158,8 +182,17 @@ public class ChessGame {
 		if (move == null || iterator == null || !iterator.position.validateMove(move)) {
 			return null;
 		}
+
+		Node nextNode = new Node(iterator.position.forkPosition(move), null, iterator).setMove(move);
+        if (iterator == null) {
+            nextNode.setMoveId(1);
+        } else if (iterator.position.getTurn() == PieceColor.WHITE) {
+            nextNode.setMoveId(iterator.moveId+1);
+        } else {
+            nextNode.setMoveId(iterator.moveId);
+        }
 		
-		iterator.next = new Node(iterator.position.forkPosition(move), null, iterator).setMove(move);
+		iterator.next = nextNode;
 		iterator = iterator.next;
 		tail = iterator;
 		return iterator.position;
@@ -197,6 +230,7 @@ public class ChessGame {
 		
 		public ChessPosition position = null;
 		public ChessMove move = null;
+        public int moveId = 0;
 		public Node next = null;
 		public Node prev = null;
 		
@@ -228,5 +262,15 @@ public class ChessGame {
 			this.move = move;
 			return this;
 		}
+
+        /**
+         *
+         * @param moveId
+         * @return
+         */
+        public Node setMoveId(int moveId) {
+            this.moveId = moveId;
+            return this;
+        }
 	}	
 }
