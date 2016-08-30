@@ -381,7 +381,7 @@ public class ChessPosition {
 
             if (pieceType == PieceType.PAWN) {
 				if (srcFile != dstFile) {
-					resultBuilder.append(srcFile + 'a');
+					resultBuilder.append((char)(srcFile + 'a'));
 				}
 			} else {
 				resultBuilder.append(PieceType.toAlgebraic(pieceType));
@@ -400,7 +400,7 @@ public class ChessPosition {
                 }
 			}
 
-			if (dstPiece != null) {
+			if (dstPiece != null || (pieceType == PieceType.PAWN && srcFile != dstFile)) {
 				resultBuilder.append('x');
 			}
 
