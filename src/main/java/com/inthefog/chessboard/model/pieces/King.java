@@ -66,8 +66,12 @@ public class King extends ChessPiece {
             moves.add(new ChessMove(loc, loc.incr(0, -2)));
         }
 
-        for (int rankStep = -1; rankStep <= 1; rankStep += 2) {
-            for (int fileStep = -1; fileStep <=1; fileStep += 2) {
+        for (int rankStep = -1; rankStep <= 1; rankStep++) {
+            for (int fileStep = -1; fileStep <=1; fileStep++) {
+                if (rankStep == 0 && fileStep == 0) {
+                    continue;
+                }
+
                 ChessCoords dst = loc.incr(rankStep, fileStep);
                 if (dst.inRange()) {
                     moves.add(new ChessMove(loc, dst));
