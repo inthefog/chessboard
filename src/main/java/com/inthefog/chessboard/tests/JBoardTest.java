@@ -26,6 +26,7 @@ public class JBoardTest extends JFrame implements ActionListener {
     private JMenu fileMenu = null;
     private JMenu boardMenu = null;
     private JMenuItem copyGameMenuItem = null;
+    private JMenuItem pasteGameMenuItem = null;
     private JMenuItem startPosMenuItem = null;
     private JMenuItem flipMenuItem = null;
     private JMenuItem autoPromotionMenuItem = null;
@@ -80,6 +81,11 @@ public class JBoardTest extends JFrame implements ActionListener {
         copyGameMenuItem.setToolTipText("Copy game to clipboard");
         copyGameMenuItem.addActionListener(this);
 
+        pasteGameMenuItem = new JMenuItem("Paste Game", null);
+        pasteGameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
+        pasteGameMenuItem.setToolTipText("Paste game from clipboard");
+        pasteGameMenuItem.addActionListener(this);
+
         startPosMenuItem = new JMenuItem("Start Position", null);
         startPosMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
         startPosMenuItem.setToolTipText("Set start position");
@@ -106,6 +112,7 @@ public class JBoardTest extends JFrame implements ActionListener {
         exitMenuItem.addActionListener(this);
 
         boardMenu.add(copyGameMenuItem);
+        boardMenu.add(pasteGameMenuItem);
         boardMenu.add(startPosMenuItem);
         boardMenu.add(flipMenuItem);
         boardMenu.add(autoPromotionMenuItem);
@@ -126,6 +133,9 @@ public class JBoardTest extends JFrame implements ActionListener {
         }
         else if (e.getSource() == copyGameMenuItem) {
             board.copyGameToClipboard();
+        }
+        else if (e.getSource() == pasteGameMenuItem) {
+            board.pasteGameFromClipboard();
         }
         else if (e.getSource() == startPosMenuItem) {
             board.setGame(new ChessPosition().setStartPosition());

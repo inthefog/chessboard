@@ -23,12 +23,30 @@ public class PgnReader implements Closeable {
 
     /**
      *
-     * @param pgnFilepath
+     * @param pgnFile
      * @throws IOException
      */
-    public PgnReader(String pgnFilepath) throws IOException {
+    public PgnReader(File pgnFile) throws IOException {
+        this(new FileReader(pgnFile.getAbsolutePath()));
+    }
+
+    /**
+     *
+     * @param pgnText
+     * @throws IOException
+     */
+    public PgnReader(String pgnText) throws IOException {
+        this(new StringReader(pgnText));
+    }
+
+    /**
+     *
+     * @param reader
+     * @throws IOException
+     */
+    private PgnReader(Reader reader) throws IOException {
         close();
-        br = new BufferedReader(new FileReader(pgnFilepath));
+        br = new BufferedReader(reader);
         line = br.readLine();
     }
 

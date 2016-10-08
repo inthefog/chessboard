@@ -1,8 +1,11 @@
 package com.inthefog.chessboard.model;
 
+import com.inthefog.chessboard.model.types.GameResult;
 import com.inthefog.chessboard.model.types.PieceColor;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -19,6 +22,7 @@ public class ChessGame {
 	private Node tail = null;
 	private Node iterator = null;
 	private String parseError = null;
+    private GameResult result = GameResult.UNKNOWN;
 
     /**
      *
@@ -60,6 +64,22 @@ public class ChessGame {
 
     /**
      *
+     * @return
+     */
+	public GameResult getResult() {return result;}
+
+    /**
+     *
+     * @param result
+     * @return
+     */
+	public ChessGame setResult(GameResult result) {
+	    this.result = result;
+        return this;
+    }
+
+    /**
+     *
      * @param name
      * @return
      */
@@ -79,30 +99,11 @@ public class ChessGame {
      * Returns all moves separated with semi-colon.
      * @return
      */
-    public String toMovesString() {
+    public String toMoves() {
         StringBuilder sb = new StringBuilder();
         Node tmpIterator = head;
         while (tmpIterator.next != null) {
             sb.append(tmpIterator.next.move.toString());
-            sb.append(' ');
-            tmpIterator = tmpIterator.next;
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns all moves in PGN notation.
-     * @return
-     */
-    public String toMovesPgn() {
-        StringBuilder sb = new StringBuilder();
-        Node tmpIterator = head;
-        while (tmpIterator.next != null) {
-            if (tmpIterator.prev == null || tmpIterator.position.getTurn() == PieceColor.WHITE) {
-                sb.append(tmpIterator.next.moveId);
-                sb.append(tmpIterator.position.getTurn() == PieceColor.WHITE ? ". " : "... ");
-            }
-            sb.append(tmpIterator.position.createAlgebraic(tmpIterator.next.move));
             sb.append(' ');
             tmpIterator = tmpIterator.next;
         }
@@ -220,7 +221,47 @@ public class ChessGame {
 	public String getParseError() {
 		return parseError;
 	}
-	
+
+    /**
+     *
+     * @return
+     */
+    public String toPgn() {
+        StringBuilder sb = new StringBuilder();
+
+        for (String propName : props.keySet()) {
+            if (propName.equals("Result") && result != GameResult.UNKNOWN) {
+                continue;
+            }
+            String propValue = props.get(propName);
+            sb.append(String.format("%s \"%s\"\n", propName, propValue));
+        }
+
+        if (result != GameResult.UNKNOWN) {
+            sb.append(String.format("%s \"%s\"\n", "Result", GameResult.toAlgebraic(result)));
+        }
+
+        sb.append("\n");
+
+        Node tmpIterator = head;
+        while (tmpIterator.next != null) {
+            if (tmpIterator.prev == null || tmpIterator.position.getTurn() == PieceColor.WHITE) {
+                sb.append(tmpIterator.next.moveId);
+                sb.append(tmpIterator.position.getTurn() == PieceColor.WHITE ? ". " : "... ");
+            }
+            sb.append(tmpIterator.position.createAlgebraic(tmpIterator.next.move));
+            sb.append(' ');
+            tmpIterator = tmpIterator.next;
+        }
+
+        return sb.append(GameResult.toAlgebraic(result)).append("\n").toString();
+    }
+
+    public static ChessGame fromPgn(Reader reader) {
+        BufferedReader br = new BufferedReader(reader);
+
+    }
+
 	/**
 	 * 
 	 * @author pasha

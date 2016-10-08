@@ -16,7 +16,9 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.swing.*;
+import javax.swing.tree.ExpandVetoException;
 
+import com.inthefog.chessboard.exceptions.ClipboardException;
 import com.inthefog.chessboard.view.helpers.ClipboardReadWrite;
 import com.inthefog.chessboard.view.helpers.JBoardActions;
 import org.apache.commons.io.IOUtils;
@@ -79,6 +81,15 @@ public class JBoard extends JComponent implements ComponentListener {
 		game = new ChessGame(startPosition);
 		setPosition(startPosition);
 	}
+
+    /**
+     *
+     * @param game
+     */
+	public void setGame(ChessGame game) {
+	    this.game = game;
+        setPosition(game.get() == null ? new ChessPosition() : game.get());
+    }
 
 	/**
 	 * 
@@ -210,9 +221,19 @@ public class JBoard extends JComponent implements ComponentListener {
      *
      */
 	public void copyGameToClipboard() {
-	    String gameText = game.toMovesPgn();
+	    String gameText = game.toPgn();
         ClipboardReadWrite.writeText(gameText);
+    }
 
+    /**
+     *
+     */
+    public void pasteGameFromClipboard() {
+        try {
+            String gameText = ClipboardReadWrite.readText();
+        } catch (ClipboardException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Game paste error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 	
 	/**
@@ -283,8 +304,7 @@ public class JBoard extends JComponent implements ComponentListener {
 	private ChessCoords getPosCoords(ChessCoords squareCoords) {
 		return getSquareCoords(squareCoords); //reverse transform is same.
 	}
-	
-	
+
 	/**
 	 * 
 	 * @return
